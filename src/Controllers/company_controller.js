@@ -5,31 +5,35 @@ class pj_controller {
 
     async create(req, res){
 
-        const { nome_empresa, tipo_servico, email, celular, longitude, latitude,
-        cep, rua, bairro, cidade, numero } = req.body
+        const { name_company, type_services, show_type_services, descriptionServices, email, phone, longitude, latitude,
+        zip_code, road, district, city, number_place } = req.body
 
         // Query para inserir na tabela PESSOA JURIDICA
-        const queryJuridica = `INSERT INTO pessoa_juridica (
-            nome_empresa,
-            tipo_servico,
+        const queryCompany = `INSERT INTO companies (
+            name_company,
+            type_services,
+            show_type_services,
+            descriptionServices,
             email,
-            celular,
+            phone,
             longitude,
             latitude
-        )VALUES(?,?,?,?,?,?)`
+        )VALUES(?,?,?,?,?,?,?,?)`
         
         //Valores para insetir na tabela PESSOA JURIDICA
-        const valuesJuridica = [
-            nome_empresa,
-            tipo_servico,
+        const valuesCompany = [
+            name_company,
+            type_services,
+            show_type_services,
+            descriptionServices,
             email,
-            celular,
+            phone,
             longitude,
             latitude
         ]
 
         try {
-            db.query(queryJuridica, valuesJuridica)
+            db.query(queryCompany, valuesCompany)
         } catch (error) {
             console.log(error)
         }
@@ -38,41 +42,40 @@ class pj_controller {
 
             function resultQuery(){
                 return new Promise((resolve, reject)=>{
-                    db.query(`SELECT id FROM pessoa_juridica WHERE email = '${email}'`,
+                    db.query(`SELECT id FROM companies WHERE email = '${email}'`,
                     function(error, rows, fields){
                         resolve(rows[0].id)
-                        //resolve(JSON.Number(rows[0].id))
                     })
                 })
             }
 
         //Query para insetir na tabela Endereço Geral
-        const queryAddres = `INSERT INTO enderecos(
-            cep,
-            rua,
-            bairro,
-            cidade,
-            numero,
-            fk_id_juridicas
+        const queryAddress = `INSERT INTO address(
+            zip_code,
+            road,
+            district,
+            city,
+            number_place,
+            fk_id_companies
         )VALUES(?,?,?,?,?,?);`
 
         //Valores para inserir na tabela Endereço Geral
-        const valuesAddres = [
-            cep,
-            rua,
-            bairro,
-            cidade,
-            numero,
+        const valuesAddress = [
+            zip_code,
+            road,
+            district,
+            city,
+            number_place,
             id
         ]
             try {
-                db.query(queryAddres, valuesAddres)
+                db.query(queryAddress, valuesAddress)
             } catch (error) {
                 console.log(error)
             }
 
             try {
-                db.query(`SELECT * FROM enderecos INNER JOIN pessoa_juridica ON enderecos.fk_id_juridicas = pessoa_juridica.id WHERE email = '${email}';`,
+                db.query(`SELECT * FROM address INNER JOIN companies ON address.fk_id_companies = companies.id WHERE email = '${email}';`,
                 function(err, rows){
                     res.status(201).json(rows)
                 })  
@@ -84,7 +87,7 @@ class pj_controller {
 
     async loadList(req, res){
         const search = req.params.search
-        db.query(`SELECT * FROM enderecos INNER JOIN pessoa_juridica ON enderecos.fk_id_juridicas = pessoa_juridica.id WHERE tipo_servico LIKE '%${search}%'`,
+        db.query(`SELECT * FROM address INNER JOIN companies ON address.fk_id_companies = companies.id WHERE type_services LIKE '%${search}%'`,
         function(err, rows){
             if (err){
                 return res.status(400).json(err)
