@@ -23,7 +23,7 @@ class pj_controller {
         //Valores para insetir na tabela PESSOA JURIDICA
         const valuesCompany = [
             name_company,
-            type_services,
+            type_services.toLowerCase(),
             show_type_services,
             descriptionServices,
             email,
@@ -87,6 +87,7 @@ class pj_controller {
 
     async loadList(req, res){
         const search = req.params.search
+        search.toLowerCase()
         db.query(`SELECT * FROM address INNER JOIN companies ON address.fk_id_companies = companies.id WHERE type_services LIKE '%${search}%'`,
         function(err, rows){
             if (err){
